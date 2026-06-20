@@ -99,7 +99,7 @@ The goal throughout: every screen should feel like it belongs in a fashion magaz
 
 ## Roadmap
 
-- [ ] Search across collections
+- [x] Search across collections
 - [ ] Favorites
 - [ ] Collection cover auto-update from latest inspiration
 - [ ] Responsive/mobile polish pass
