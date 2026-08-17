@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import CollectionPage from './pages/CollectionPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import { AuthProvider } from './context/AuthContext'
 import useLocalStorage from './hooks/useLocalStorage'
 
 const defaultCollections = [
@@ -46,20 +50,32 @@ function App() {
   const [collections, setCollections] = useLocalStorage('stylevault-collections', defaultCollections)
 
   return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-[#080808] text-white">
-        <Routes>
-          <Route
-            path="/"
-            element={<HomePage collections={collections} setCollections={setCollections} />}
-          />
-          <Route
-            path="/collection/:id"
-            element={<CollectionPage collections={collections} setCollections={setCollections} />}
-          />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-screen bg-[#080808] text-white">
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage collections={collections} setCollections={setCollections} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collection/:id"
+              element={
+                <ProtectedRoute>
+                  <CollectionPage collections={collections} setCollections={setCollections} />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
