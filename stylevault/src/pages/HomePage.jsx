@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import CollectionGrid from '../components/collections/CollectionGrid'
 import NewCollectionModal from '../components/ui/NewCollectionModal'
+import UserMenu from '../components/auth/UserMenu'
+
 function HomePage({ collections, setCollections }) {
   const [showModal, setShowModal] = useState(false)
   const [editingCollection, setEditingCollection] = useState(null)
@@ -58,6 +60,7 @@ function HomePage({ collections, setCollections }) {
           <span className="text-white text-2xl font-light tracking-widest">VAULT</span>
         </div>
         <div className="flex items-center gap-4">
+          <UserMenu />
           <div className="relative">
             <button
               onClick={() => setSearchOpen((open) => !open)}

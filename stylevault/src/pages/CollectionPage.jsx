@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 import AddInspirationModal from '../components/ui/AddInspirationModal'
+import UserMenu from '../components/auth/UserMenu'
 import {
   DndContext,
   closestCenter,
@@ -197,12 +198,15 @@ function CollectionPage({ collections, setCollections }) {
           <span className="font-editorial text-white text-2xl italic">Style</span>
           <span className="text-white text-2xl font-light tracking-widest">VAULT</span>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="text-[11px] uppercase tracking-[0.2em] text-black bg-white px-5 py-2.5 hover:bg-zinc-200 transition-colors duration-300"
-        >
-          + Add Inspiration
-        </button>
+        <div className="flex items-center gap-6">
+          <UserMenu />
+          <button
+            onClick={() => setShowModal(true)}
+            className="text-[11px] uppercase tracking-[0.2em] text-black bg-white px-5 py-2.5 hover:bg-zinc-200 transition-colors duration-300"
+          >
+            + Add Inspiration
+          </button>
+        </div>
       </nav>
 
       <div className="px-10 pt-12 pb-10 flex items-end justify-between border-b border-zinc-900">
