@@ -1,3 +1,4 @@
+import WelcomePage from './pages/WelcomePage'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import CollectionPage from './pages/CollectionPage'
@@ -54,6 +55,7 @@ function App() {
       <BrowserRouter>
         <div className="min-h-screen bg-[#080808] text-white">
           <Routes>
+            <Route path="/welcome" element={<WelcomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route

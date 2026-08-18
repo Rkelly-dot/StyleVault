@@ -34,10 +34,10 @@ function LoginPage() {
   return (
     <div className="min-h-screen bg-[#080808] flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-10">
+        <Link to="/welcome" className="block text-center mb-10">
           <span className="font-editorial text-white text-3xl italic">Style</span>
           <span className="text-white text-3xl font-light tracking-widest">VAULT</span>
-        </div>
+        </Link>
 
         <p className="text-[10px] text-zinc-600 uppercase tracking-[0.4em] mb-3 text-center">
           Welcome back
