@@ -2,42 +2,46 @@ import { useState } from 'react'
 import CollectionGrid from '../components/collections/CollectionGrid'
 import NewCollectionModal from '../components/ui/NewCollectionModal'
 import UserMenu from '../components/auth/UserMenu'
+import { useCollections } from '../hooks/useCollections'
 
-function HomePage({ collections, setCollections }) {
+function HomePage() {
+  const { collections, loading, createCollection, updateCollection, deleteCollection } = useCollections()
   const [showModal, setShowModal] = useState(false)
   const [editingCollection, setEditingCollection] = useState(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const displayedCollections = collections
-    .map((c) => {
-      try {
-        const stored = localStorage.getItem(`collection-${c.id}`)
-        const items = stored ? JSON.parse(stored) : null
-        return items && items.length ? { ...c, cover: items[0].image } : c
-      } catch (err) {
-        return c
-      }
-    })
-    .filter((collection) => {
-      if (!searchTerm.trim()) return true
-      return collection.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
-    })
+  const displayedCollections = collections.filter((collection) => {
+    if (!searchTerm.trim()) return true
+    return collection.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+  })
 
-  function handleCreateCollection(newCollection) {
-    setCollections((prev) => [newCollection, ...prev])
+  async function handleCreateCollection(payload) {
+    try {
+      await createCollection(payload)
+    } catch (err) {
+      console.error('Error creating collection:', err)
+      window.alert('Could not create the collection. Please try again.')
+    }
   }
 
-  function handleUpdateCollection(updatedCollection) {
-    setCollections((prev) => prev.map((collection) => (
-      collection.id === updatedCollection.id ? updatedCollection : collection
-    )))
+  async function handleUpdateCollection(id, updates) {
+    try {
+      await updateCollection(id, updates)
+    } catch (err) {
+      console.error('Error updating collection:', err)
+      window.alert('Could not update the collection. Please try again.')
+    }
   }
 
-  function handleDeleteCollection(id) {
+  async function handleDeleteCollection(id) {
     if (!window.confirm('Delete this collection?')) return
-    localStorage.removeItem(`collection-${id}`)
-    setCollections((prev) => prev.filter((collection) => collection.id !== id))
+    try {
+      await deleteCollection(id)
+    } catch (err) {
+      console.error('Error deleting collection:', err)
+      window.alert('Could not delete the collection. Please try again.')
+    }
   }
 
   function handleEditCollection(collection) {
@@ -101,11 +105,15 @@ function HomePage({ collections, setCollections }) {
 
       {/* Grid */}
       <div className="px-10 pb-16">
+        {loading ? (
+          <p className="text-zinc-600 text-[11px] uppercase tracking-[0.4em]">Loading collections…</p>
+        ) : (
           <CollectionGrid
             collections={displayedCollections}
             onEdit={handleEditCollection}
             onDelete={handleDeleteCollection}
           />
+        )}
       </div>
 
    {showModal && (
