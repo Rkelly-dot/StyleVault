@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 import AddInspirationModal from '../components/ui/AddInspirationModal'
 import UserMenu from '../components/auth/UserMenu'
+import { supabase } from '../lib/supabaseClient'
 import {
   DndContext,
   closestCenter,
@@ -124,14 +125,48 @@ function SortableCard({ item, onEdit, onDelete }) {
   )
 }
 
-function CollectionPage({ collections, setCollections }) {
+function CollectionPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const collection = collections.find((c) => c.id === Number(id))
+
+  const [collection, setCollection] = useState(null)
+  const [collectionLoading, setCollectionLoading] = useState(true)
+  const [collectionError, setCollectionError] = useState(false)
+
   const [items, setItems] = useLocalStorage(`collection-${id}`, initialItems)
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [activeFilter, setActiveFilter] = useState(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchCollection() {
+      setCollectionLoading(true)
+      setCollectionError(false)
+
+      const { data, error } = await supabase
+        .from('collections')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (!isMounted) return
+
+      if (error) {
+        console.error('Error fetching collection:', error)
+        setCollectionError(true)
+      } else {
+        setCollection(data)
+      }
+      setCollectionLoading(false)
+    }
+
+    fetchCollection()
+    return () => {
+      isMounted = false
+    }
+  }, [id])
 
   const filteredItems = activeFilter
     ? items.filter((item) => item.mood === activeFilter)
@@ -143,14 +178,6 @@ function CollectionPage({ collections, setCollections }) {
       activationConstraint: { distance: 8 },
     }),
   )
-
-  function updateCollectionItemCount(count) {
-    setCollections?.((prev) => prev.map((collectionItem) => (
-      collectionItem.id === Number(id)
-        ? { ...collectionItem, itemCount: count }
-        : collectionItem
-    )))
-  }
 
   function handleDragEnd(event) {
     const { active, over } = event
@@ -164,21 +191,16 @@ function CollectionPage({ collections, setCollections }) {
   }
 
   function handleAddItem(newItem) {
-    const nextItems = [newItem, ...items]
-    setItems(nextItems)
-    updateCollectionItemCount(nextItems.length)
+    setItems((prev) => [newItem, ...prev])
   }
 
   function handleSaveItem(updatedItem) {
-    const nextItems = items.map((item) => (item.id === updatedItem.id ? updatedItem : item))
-    setItems(nextItems)
+    setItems((prev) => prev.map((item) => (item.id === updatedItem.id ? updatedItem : item)))
   }
 
   function handleDeleteItem(itemId) {
     if (!window.confirm('Delete this inspiration?')) return
-    const nextItems = items.filter((item) => item.id !== itemId)
-    setItems(nextItems)
-    updateCollectionItemCount(nextItems.length)
+    setItems((prev) => prev.filter((item) => item.id !== itemId))
   }
 
   function handleEditItem(item) {
@@ -189,6 +211,28 @@ function CollectionPage({ collections, setCollections }) {
   function handleCloseModal() {
     setShowModal(false)
     setEditingItem(null)
+  }
+
+  if (collectionLoading) {
+    return (
+      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+        <p className="text-zinc-600 text-[11px] uppercase tracking-[0.4em]">Loading collection…</p>
+      </div>
+    )
+  }
+
+  if (collectionError || !collection) {
+    return (
+      <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-6">
+        <p className="text-zinc-500 text-sm">This collection doesn't exist or you don't have access to it.</p>
+        <button
+          onClick={() => navigate('/')}
+          className="text-[11px] uppercase tracking-[0.2em] text-black bg-white px-5 py-2.5 hover:bg-zinc-200 transition-colors duration-300"
+        >
+          ← Back to Collections
+        </button>
+      </div>
+    )
   }
 
   return (
