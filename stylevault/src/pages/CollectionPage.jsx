@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import useLocalStorage from '../hooks/useLocalStorage'
+import { useItems } from '../hooks/useItems'
 import AddInspirationModal from '../components/ui/AddInspirationModal'
 import UserMenu from '../components/auth/UserMenu'
 import { supabase } from '../lib/supabaseClient'
@@ -18,10 +18,6 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-
-// Default items for a new collection should be empty so
-// newly-created collections don't inherit demo placeholder data.
-const initialItems = []
 
 const moodColors = {
   'Avant-Garde': 'bg-purple-950 text-purple-300',
@@ -66,12 +62,12 @@ function SortableCard({ item, onEdit, onDelete }) {
           ${isDragging ? 'shadow-[0_30px_60px_rgba(0,0,0,0.8)] ring-1 ring-white/20' : 'shadow-none'}
         `}
       >
-        <div className="relative aspect-[2/3] overflow-hidden">
+        <div className="relative overflow-hidden">
           <img
             src={item.image}
             alt={item.caption}
             className={`
-              w-full h-full object-cover
+              w-full h-auto block
               transition-transform duration-500
               ${isDragging ? 'scale-105' : 'group-hover:scale-105'}
             `}
@@ -133,7 +129,7 @@ function CollectionPage() {
   const [collectionLoading, setCollectionLoading] = useState(true)
   const [collectionError, setCollectionError] = useState(false)
 
-  const [items, setItems] = useLocalStorage(`collection-${id}`, initialItems)
+  const { items, loading: itemsLoading, addItem, updateItem, deleteItem, reorderItems } = useItems(id)
   const [showModal, setShowModal] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [activeFilter, setActiveFilter] = useState(null)
@@ -182,25 +178,29 @@ function CollectionPage() {
   function handleDragEnd(event) {
     const { active, over } = event
     if (active.id !== over?.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id)
-        const newIndex = items.findIndex((i) => i.id === over.id)
-        return arrayMove(items, oldIndex, newIndex)
-      })
+      const oldIndex = items.findIndex((i) => i.id === active.id)
+      const newIndex = items.findIndex((i) => i.id === over.id)
+      const reordered = arrayMove(items, oldIndex, newIndex)
+      reorderItems(reordered)
     }
   }
 
-  function handleAddItem(newItem) {
-    setItems((prev) => [newItem, ...prev])
+  async function handleAddItem(payload) {
+    await addItem(payload)
   }
 
-  function handleSaveItem(updatedItem) {
-    setItems((prev) => prev.map((item) => (item.id === updatedItem.id ? updatedItem : item)))
+  async function handleSaveItem(itemId, payload) {
+    await updateItem(itemId, payload)
   }
 
-  function handleDeleteItem(itemId) {
+  async function handleDeleteItem(itemId) {
     if (!window.confirm('Delete this inspiration?')) return
-    setItems((prev) => prev.filter((item) => item.id !== itemId))
+    try {
+      await deleteItem(itemId)
+    } catch (err) {
+      console.error('Error deleting item:', err)
+      window.alert('Could not delete this item. Please try again.')
+    }
   }
 
   function handleEditItem(item) {
