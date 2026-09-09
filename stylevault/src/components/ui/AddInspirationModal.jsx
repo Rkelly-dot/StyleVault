@@ -15,28 +15,32 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
   const [caption, setCaption] = useState(initialItem?.caption || '')
   const [selectedMood, setSelectedMood] = useState(initialItem?.mood || null)
   const [imagePreview, setImagePreview] = useState(initialItem?.image || null)
-  const [imageFile, setImageFile] = useState(null)
+  const [imageBlob, setImageBlob] = useState(null)
   const [draggingOver, setDraggingOver] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (initialItem) {
       setCaption(initialItem.caption || '')
       setSelectedMood(initialItem.mood || null)
       setImagePreview(initialItem.image || null)
-      setImageFile(null)
+      setImageBlob(null)
     } else {
       setCaption('')
       setSelectedMood(null)
       setImagePreview(null)
-      setImageFile(null)
+      setImageBlob(null)
     }
   }, [initialItem])
 
   function handleFileChange(e) {
     const file = e.target.files[0]
     if (!file) return
-    setImageFile(file)
-    resizeImageFile(file).then((dataUrl) => setImagePreview(dataUrl))
+    resizeImageFile(file).then((blob) => {
+      setImageBlob(blob)
+      setImagePreview(URL.createObjectURL(blob))
+    })
   }
 
   function handleDrop(e) {
@@ -44,8 +48,10 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
     setDraggingOver(false)
     const file = e.dataTransfer.files[0]
     if (!file) return
-    setImageFile(file)
-    resizeImageFile(file).then((dataUrl) => setImagePreview(dataUrl))
+    resizeImageFile(file).then((blob) => {
+      setImageBlob(blob)
+      setImagePreview(URL.createObjectURL(blob))
+    })
   }
 
   function resizeImageFile(file, maxWidth = 1200, quality = 0.8) {
@@ -61,9 +67,15 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
           canvas.height = height
           const ctx = canvas.getContext('2d')
           ctx.drawImage(img, 0, 0, width, height)
-          const dataUrl = canvas.toDataURL('image/jpeg', quality)
-          URL.revokeObjectURL(img.src)
-          resolve(dataUrl)
+          canvas.toBlob(
+            (blob) => {
+              URL.revokeObjectURL(img.src)
+              if (blob) resolve(blob)
+              else reject(new Error('Could not process image'))
+            },
+            'image/jpeg',
+            quality,
+          )
         }
         img.onerror = (err) => {
           URL.revokeObjectURL(img.src)
@@ -76,21 +88,30 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
     })
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!imagePreview || !selectedMood) return
+    setError('')
+    setSubmitting(true)
+
     const payload = {
-      id: initialItem?.id ?? Date.now(),
-      image: imagePreview,
       caption,
       mood: selectedMood,
+      imageBlob,
+      existingImage: initialItem?.image || null,
     }
 
-    if (initialItem) {
-      onSave?.(payload)
-    } else {
-      onAdd(payload)
+    try {
+      if (initialItem) {
+        await onSave?.(initialItem.id, payload)
+      } else {
+        await onAdd(payload)
+      }
+      onClose()
+    } catch (err) {
+      console.error('Error saving inspiration:', err)
+      setError('Something went wrong saving this. Please try again.')
+      setSubmitting(false)
     }
-    onClose()
   }
 
   return (
@@ -208,26 +229,31 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
 
           </div>
 
+          {error && (
+            <p className="px-8 text-red-400 text-xs tracking-wide -mt-2 mb-2">{error}</p>
+          )}
+
           {/* Modal Footer */}
           <div className="px-8 py-6 border-t border-zinc-800 flex items-center justify-between">
             <button
               onClick={onClose}
-              className="text-[11px] uppercase tracking-widest text-zinc-600 hover:text-white transition-colors duration-200"
+              disabled={submitting}
+              className="text-[11px] uppercase tracking-widest text-zinc-600 hover:text-white transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
-              disabled={!imagePreview || !selectedMood}
+              disabled={!imagePreview || !selectedMood || submitting}
               className={`
                 text-[11px] uppercase tracking-[0.2em] px-6 py-2.5 transition-all duration-300
-                ${imagePreview && selectedMood
+                ${imagePreview && selectedMood && !submitting
                   ? 'bg-white text-black hover:bg-zinc-200 cursor-pointer'
                   : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
                 }
               `}
             >
-              Add to Collection
+              {submitting ? 'Saving…' : 'Add to Collection'}
             </button>
           </div>
 
