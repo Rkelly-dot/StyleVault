@@ -2,9 +2,24 @@
 
 @import "tailwindcss";
 
+/* Only fine-pointer devices get hover-only UI. Touch devices always see controls. */
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
 body {
   font-family: 'Inter', sans-serif;
   background: #080808;
+  /* Snappier taps: removes the 300ms delay and double-tap zoom on touch screens */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari zooms the viewport when a focused field is smaller than 16px */
+@media (pointer: coarse), (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
 .font-editorial {
