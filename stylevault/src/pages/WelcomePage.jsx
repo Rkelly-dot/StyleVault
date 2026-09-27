@@ -11,7 +11,7 @@ function WelcomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#080808] relative overflow-hidden">
+    <div className="min-h-dvh bg-[#080808] relative overflow-hidden">
       {/* Splash overlay */}
       <div
         className={`
@@ -33,14 +33,14 @@ function WelcomePage() {
           ${showSplash ? 'opacity-0' : 'opacity-100'}
         `}
       >
-        <nav className="flex items-center justify-between px-10 py-6">
+        <nav className="flex items-center justify-between px-5 sm:px-10 py-5 sm:py-6">
           <div>
             <span className="font-editorial text-white text-2xl italic">Style</span>
             <span className="text-white text-2xl font-light tracking-widest">VAULT</span>
           </div>
           <button
             onClick={() => navigate('/login')}
-            className="text-[11px] uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors duration-300"
+            className="hidden sm:block text-[11px] uppercase tracking-[0.2em] text-zinc-400 hover:text-white transition-colors duration-300"
           >
             Already have an account
           </button>
@@ -50,7 +50,7 @@ function WelcomePage() {
           <p className="text-[10px] text-zinc-600 uppercase tracking-[0.5em] mb-6">
             A curated fashion archive
           </p>
-          <h1 className="font-editorial text-white font-normal italic leading-[0.95] text-6xl sm:text-7xl md:text-8xl max-w-4xl">
+          <h1 className="font-editorial text-white font-normal italic leading-[0.95] text-5xl sm:text-7xl md:text-8xl max-w-4xl">
             Your style,
             <br />
             archived like art.
@@ -60,7 +60,7 @@ function WelcomePage() {
             moodboards built for people who take fashion seriously.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-5 mt-12">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-5 mt-12 w-full max-w-sm sm:w-auto">
             <button
               onClick={() => navigate('/register')}
               className="text-[11px] uppercase tracking-[0.2em] text-black bg-white px-8 py-4 hover:bg-zinc-200 transition-colors duration-300"
@@ -76,7 +76,7 @@ function WelcomePage() {
           </div>
         </div>
 
-        <footer className="px-10 py-8 border-t border-zinc-900 text-center">
+        <footer className="px-5 sm:px-10 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] border-t border-zinc-900 text-center">
           <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
             StyleVault — Est. for the archive-minded
           </p>
