@@ -123,11 +123,11 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-        <div className="bg-[#111111] border border-zinc-800 w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-hidden rounded-3xl flex flex-col">
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 pt-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+        <div className="bg-[#111111] border border-zinc-800 w-full max-w-lg max-h-[calc(100dvh-3rem)] overflow-hidden rounded-3xl flex flex-col">
 
           {/* Modal Header */}
-          <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-800">
+          <div className="flex items-center justify-between px-5 sm:px-8 py-5 sm:py-6 border-b border-zinc-800">
             <div>
               <p className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] mb-1">
                 New Entry
@@ -145,7 +145,7 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
           </div>
 
           {/* Modal Body */}
-          <div className="px-8 py-6 space-y-6 overflow-y-auto flex-1 min-h-0">
+          <div className="px-5 sm:px-8 py-6 space-y-6 overflow-y-auto flex-1 min-h-0">
 
             {/* Image Upload */}
             <div>
@@ -169,7 +169,7 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="w-full h-64 object-cover"
+                    className="w-full h-48 sm:h-64 object-cover"
                   />
                 ) : (
                   <div className="h-40 flex flex-col items-center justify-center gap-2">
@@ -214,7 +214,7 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
                     key={mood}
                     onClick={() => setSelectedMood(mood)}
                     className={`
-                      text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-all duration-200
+                      text-[10px] uppercase tracking-widest px-3.5 py-2.5 sm:px-3 sm:py-1.5 border transition-all duration-200
                       ${selectedMood === mood
                         ? 'border-white text-white bg-white/10'
                         : 'border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
@@ -230,11 +230,11 @@ function AddInspirationModal({ onClose, onAdd, onSave, initialItem }) {
           </div>
 
           {error && (
-            <p className="px-8 text-red-400 text-xs tracking-wide -mt-2 mb-2">{error}</p>
+            <p className="px-5 sm:px-8 text-red-400 text-xs tracking-wide -mt-2 mb-2">{error}</p>
           )}
 
           {/* Modal Footer */}
-          <div className="px-8 py-6 border-t border-zinc-800 flex items-center justify-between">
+          <div className="px-5 sm:px-8 py-5 sm:py-6 border-t border-zinc-800 flex items-center justify-between">
             <button
               onClick={onClose}
               disabled={submitting}
