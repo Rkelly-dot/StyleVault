@@ -7,7 +7,8 @@ import { supabase } from '../lib/supabaseClient'
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
@@ -66,6 +67,8 @@ function SortableCard({ item, onEdit, onDelete }) {
           <img
             src={item.image}
             alt={item.caption}
+            loading="lazy"
+            decoding="async"
             className={`
               w-full h-auto block
               transition-transform duration-500
@@ -76,9 +79,14 @@ function SortableCard({ item, onEdit, onDelete }) {
 
         <div
           className={`
-            absolute inset-0 bg-black/60
-            transition-opacity duration-300 flex flex-col justify-end p-4
-            ${isDragging ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'}
+            absolute inset-0 flex flex-col justify-end p-4
+            bg-gradient-to-t from-black/85 via-black/40 to-transparent
+            can-hover:bg-none can-hover:bg-black/60
+            transition-opacity duration-300
+            ${isDragging
+              ? 'opacity-0'
+              : 'opacity-100 can-hover:opacity-0 can-hover:group-hover:opacity-100'
+            }
           `}
         >
           <p className="text-white text-sm font-light leading-snug mb-3">
@@ -98,7 +106,9 @@ function SortableCard({ item, onEdit, onDelete }) {
                   e.stopPropagation()
                   onEdit?.()
                 }}
-                className="text-zinc-400 hover:text-white transition-colors duration-200"
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                className="p-2.5 -m-1 text-zinc-400 hover:text-white transition-colors duration-200"
                 aria-label="Edit inspiration"
               >
                 ✎
@@ -108,7 +118,9 @@ function SortableCard({ item, onEdit, onDelete }) {
                   e.stopPropagation()
                   onDelete?.()
                 }}
-                className="text-zinc-400 hover:text-white transition-colors duration-200"
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                className="p-2.5 -m-1 text-zinc-400 hover:text-white transition-colors duration-200"
                 aria-label="Delete inspiration"
               >
                 🗑
@@ -170,8 +182,12 @@ function CollectionPage() {
 
   const allMoods = [...new Set(items.map((item) => item.mood))]
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 8 },
+    }),
+    // Long-press to drag on touch devices, so normal swipes still scroll the page
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 12 },
     }),
   )
 
@@ -237,23 +253,24 @@ function CollectionPage() {
 
   return (
     <div className="min-h-screen bg-[#080808]">
-      <nav className="flex items-center justify-between px-10 py-6 border-b border-zinc-900">
+      <nav className="flex items-center justify-between gap-3 px-5 sm:px-10 py-5 sm:py-6 border-b border-zinc-900">
         <div onClick={() => navigate('/')} className="cursor-pointer">
-          <span className="font-editorial text-white text-2xl italic">Style</span>
-          <span className="text-white text-2xl font-light tracking-widest">VAULT</span>
+          <span className="font-editorial text-white text-xl sm:text-2xl italic">Style</span>
+          <span className="text-white text-xl sm:text-2xl font-light tracking-widest">VAULT</span>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           <UserMenu />
           <button
             onClick={() => setShowModal(true)}
-            className="text-[11px] uppercase tracking-[0.2em] text-black bg-white px-5 py-2.5 hover:bg-zinc-200 transition-colors duration-300"
+            aria-label="Add inspiration"
+            className="hidden sm:inline-flex sm:items-center text-[11px] uppercase tracking-[0.2em] text-black bg-white px-5 py-2.5 hover:bg-zinc-200 transition-colors duration-300"
           >
             + Add Inspiration
           </button>
         </div>
       </nav>
 
-      <div className="px-10 pt-12 pb-10 flex items-end justify-between border-b border-zinc-900">
+      <div className="px-5 sm:px-10 pt-10 sm:pt-12 pb-8 sm:pb-10 flex flex-col items-start sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-900">
         <div>
           <button
             onClick={() => navigate('/')}
@@ -262,20 +279,20 @@ function CollectionPage() {
             ← All Collections
           </button>
           <p className="text-[10px] text-zinc-600 uppercase tracking-[0.4em] mb-3">Collection</p>
-          <h1 className="font-editorial text-6xl text-white font-normal italic">
+          <h1 className="font-editorial text-4xl sm:text-6xl text-white font-normal italic break-words">
             {collection?.name}
           </h1>
         </div>
         <p className="text-zinc-600 text-sm tracking-widest uppercase"> {filteredItems.length} pieces</p>
       </div>
 
-      <div className="px-10 py-10">
+      <div className="px-5 sm:px-10 pt-8 sm:pt-10 pb-24 sm:pb-10">
         {items.length === 0 ? (
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-16 text-center">
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-8 sm:p-16 text-center">
             <p className="text-[10px] text-zinc-600 uppercase tracking-[0.4em] mb-4">
               Empty Collection
             </p>
-            <h2 className="font-editorial text-5xl text-white font-normal italic mb-4">
+            <h2 className="font-editorial text-3xl sm:text-5xl text-white font-normal italic mb-4">
               Add your first piece
             </h2>
             <p className="text-zinc-400 max-w-2xl mx-auto mb-8">
@@ -305,6 +322,15 @@ function CollectionPage() {
           </DndContext>
         )}
       </div>
+
+      {/* Mobile: floating action button */}
+      <button
+        onClick={() => setShowModal(true)}
+        aria-label="Add inspiration"
+        className="sm:hidden fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-5 z-30 h-14 w-14 rounded-full bg-white text-black text-2xl font-light flex items-center justify-center shadow-[0_12px_30px_rgba(0,0,0,0.5)] active:scale-95 transition-transform duration-200"
+      >
+        +
+      </button>
 
       {showModal && (
         <AddInspirationModal
