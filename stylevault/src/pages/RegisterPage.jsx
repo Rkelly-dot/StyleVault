@@ -48,7 +48,7 @@ function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center px-6">
+    <div className="min-h-dvh bg-[#080808] flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <Link to="/welcome" className="block text-center mb-10">
           <span className="font-editorial text-white text-3xl italic">Style</span>
