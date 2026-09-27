@@ -85,11 +85,11 @@ function NewCollectionModal({ onClose, onCreate, onUpdate, existingCollection })
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-        <div className="bg-[#111111] border border-zinc-800 w-full max-w-lg">
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+        <div className="bg-[#111111] border border-zinc-800 w-full max-w-lg max-h-[calc(100dvh-3rem)] overflow-y-auto">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-800">
+          <div className="flex items-center justify-between px-5 sm:px-8 py-5 sm:py-6 border-b border-zinc-800">
             <div>
               <p className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] mb-1">
                 New Archive
@@ -107,7 +107,7 @@ function NewCollectionModal({ onClose, onCreate, onUpdate, existingCollection })
           </div>
 
           {/* Body */}
-          <div className="px-8 py-6 space-y-6">
+          <div className="px-5 sm:px-8 py-6 space-y-6">
 
             {/* Cover Image */}
             <div>
@@ -168,7 +168,7 @@ function NewCollectionModal({ onClose, onCreate, onUpdate, existingCollection })
           </div>
 
           {/* Footer */}
-          <div className="px-8 py-6 border-t border-zinc-800 flex items-center justify-between">
+          <div className="px-5 sm:px-8 py-5 sm:py-6 border-t border-zinc-800 flex items-center justify-between">
             <button
               onClick={onClose}
               className="text-[11px] uppercase tracking-widest text-zinc-600 hover:text-white transition-colors duration-200"
