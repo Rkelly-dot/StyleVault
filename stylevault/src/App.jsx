@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import HomePage from './pages/HomePage'
 import CollectionPage from './pages/CollectionPage'
 import LoginPage from './pages/LoginPage'
@@ -34,6 +35,7 @@ function App() {
             />
           </Routes>
         </div>
+        <Analytics />
       </BrowserRouter>
     </AuthProvider>
   )
