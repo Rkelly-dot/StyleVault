@@ -16,7 +16,6 @@ This is not a Pinterest clone. It's a personal, editorial-grade workspace — da
 - **Mood Tagging** — tag each piece (Streetwear, Avant-Garde, Minimalist, Archive, Luxury, Techwear, Opium, Casual) and filter a collection by mood
 - **Add Inspiration Modal** — upload an image, write a caption, assign a mood tag
 - **Create Collection Modal** — spin up new collections with a custom cover image and name
-- **LocalStorage Persistence** — everything survives a page refresh, no backend required
 - **Empty States** — clean, on-brand messaging when a collection has no pieces yet
 
 ---
@@ -32,9 +31,6 @@ This is not a Pinterest clone. It's a personal, editorial-grade workspace — da
 | Drag & Drop | [@dnd-kit](https://dndkit.com/) |
 | Persistence | Browser LocalStorage (custom `useLocalStorage` hook) |
 | Typography | Playfair Display (editorial serif) + Inter (clean sans-serif) |
-
-No backend. No database. No authentication. By design.
-
 ---
 
 ## Project Structure
@@ -111,7 +107,3 @@ The goal throughout: every screen should feel like it belongs in a fashion magaz
 
 ---
 
-### Future (v2)
-- AI-assisted mood tagging
-- AI style analysis
-- Personal style profile generation
